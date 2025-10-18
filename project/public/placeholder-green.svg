@@ -1,0 +1,20 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="url(#gradient-green)"/>
+  <defs>
+    <linearGradient id="gradient-green" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+  </defs>
+  <g opacity="0.1">
+    <circle cx="250" cy="180" r="110" fill="white"/>
+    <circle cx="950" cy="450" r="130" fill="white"/>
+    <circle cx="600" cy="315" r="85" fill="white"/>
+  </g>
+  <text x="600" y="290" font-family="system-ui, -apple-system, sans-serif" font-size="48" font-weight="700" fill="white" text-anchor="middle">
+    Blog Post
+  </text>
+  <text x="600" y="350" font-family="system-ui, -apple-system, sans-serif" font-size="24" fill="white" fill-opacity="0.8" text-anchor="middle">
+    Featured Image
+  </text>
+</svg>
