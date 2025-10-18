@@ -29,7 +29,8 @@ function Pre({ children, ...props }: any) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error("Failed to copy code:", err);
+      // Failed to copy - silently fail in production
+      // TODO: Add user-friendly error notification
     }
   };
 
