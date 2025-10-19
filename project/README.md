@@ -143,6 +143,10 @@ npm run db:migrate
 
 ## 📝 Creating Blog Posts
 
+Blog posts can be created in two ways:
+
+### Method 1: MDX Files (Traditional)
+
 Blog posts are written in MDX format and stored in `content/posts/`.
 
 ### Create a new post
@@ -178,6 +182,152 @@ Blog posts are written in MDX format and stored in `content/posts/`.
 - `tags` (required): Array of tags
 - `featured_image` (optional): Featured image URL
 - `published` (optional): Set to `false` to hide post
+
+### Method 2: Posts Upload API (Bulk Import)
+
+Use the secure API endpoint to bulk-upload posts programmatically.
+
+**Endpoint**: `POST /api/admin/posts/create`
+
+**Authentication**: Requires `x-api-key` header with your API key
+
+**Setup**:
+1. Add `POSTS_UPLOAD_API_KEY` to your `.env` file:
+   ```env
+   POSTS_UPLOAD_API_KEY="your-secure-api-key-here"
+   ```
+
+2. Make a POST request with an array of posts:
+   ```bash
+   curl -X POST "http://localhost:3000/api/admin/posts/create" \
+     -H "Content-Type: application/json" \
+     -H "x-api-key: your-secure-api-key-here" \
+     -d '[{
+       "slug": "my-first-post",
+       "title": "My First Post",
+       "description": "Post description",
+       "content": "# Hello World\n\nPost content here...",
+       "author": "Your Name",
+       "readingTime": 5,
+       "published": true,
+       "featured": false,
+       "categorySlug": "tutorial",
+       "tags": ["nextjs", "react"],
+       "keywords": ["web", "development"]
+     }]'
+   ```
+
+**Features**:
+- ✅ Bulk upload multiple posts in one request
+- ✅ Automatic category and tag creation
+- ✅ Idempotent updates (re-uploading same slug updates the post)
+- ✅ Zod validation for data integrity
+- ✅ Detailed response with success/failure status per post
+
+**Response**:
+```json
+{
+  "success": true,
+  "created": 1,
+  "updated": 0,
+  "failed": 0,
+  "total": 1,
+  "results": [
+    {
+      "slug": "my-first-post",
+      "status": "created"
+    }
+  ]
+}
+```
+
+### Complete API Reference
+
+#### 1. **Create/Bulk Upload Posts**
+```bash
+POST /api/admin/posts/create
+Headers: x-api-key, Content-Type: application/json
+Body: Array of post objects
+```
+
+#### 2. **Get All Posts** (with pagination & filtering)
+```bash
+GET /api/admin/posts/create?page=1&limit=10&published=true&category=tech&search=react
+Headers: x-api-key
+```
+
+Query Parameters:
+- `page`: Page number (default: 1)
+- `limit`: Posts per page (default: 10, max: 100)
+- `published`: Filter by published status (true/false)
+- `featured`: Filter by featured status (true/false)
+- `category`: Filter by category slug
+- `search`: Search in title and description
+
+#### 3. **Get Single Post**
+```bash
+GET /api/admin/posts/{slug}
+Headers: x-api-key
+```
+
+#### 4. **Update Post**
+```bash
+PUT /api/admin/posts/{slug}
+Headers: x-api-key, Content-Type: application/json
+Body: Post object (without slug)
+```
+
+#### 5. **Delete Post**
+```bash
+DELETE /api/admin/posts/{slug}
+Headers: x-api-key
+```
+
+#### 6. **Upload Image**
+```bash
+POST /api/admin/image/upload
+Headers: x-api-key, Content-Type: multipart/form-data
+Form Data:
+  - image: Image file (required)
+  - name: Custom filename without extension (optional)
+```
+
+**Example with curl:**
+```bash
+# Upload with auto-generated name
+curl -X POST "http://localhost:3000/api/admin/image/upload" \
+  -H "x-api-key: your-api-key" \
+  -F "image=@/path/to/image.png"
+
+# Upload with custom name
+curl -X POST "http://localhost:3000/api/admin/image/upload" \
+  -H "x-api-key: your-api-key" \
+  -F "image=@/path/to/image.png" \
+  -F "name=my-custom-image"
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Image uploaded successfully",
+  "url": "/images/my-custom-image.png",
+  "filename": "my-custom-image.png",
+  "size": 51200,
+  "sizeFormatted": "50.00 KB",
+  "type": "image/png"
+}
+```
+
+**Features:**
+- ✅ Supports: PNG, JPEG, GIF, WebP, SVG
+- ✅ Max file size: 5MB
+- ✅ Auto-generated or custom filenames
+- ✅ Filename sanitization (removes special chars)
+- ✅ Duplicate name detection
+- ✅ Saves to `public/images/` folder
+
+For full API documentation, see `tasks/PHASE-7-POSTS-UPLOAD-API.md`.
 
 ## 🎨 Customization
 
