@@ -4,7 +4,8 @@ Allow: /
 
 # Disallow admin or private routes (if any)
 Disallow: /api/
+Allow: /api/sitemap
 
 # Sitemap location
-Sitemap: https://fast-tech-web.netlify.app/sitemap.xml
+Sitemap: https://fast-tech-web.netlify.app/api/sitemap
 
