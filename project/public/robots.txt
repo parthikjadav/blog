@@ -7,5 +7,5 @@ Disallow: /api/
 Allow: /api/sitemap
 
 # Sitemap location
-Sitemap: https://fast-tech-web.netlify.app/api/sitemap
+Sitemap: https://fast-tech-net.vercel.app/api/sitemap
 
