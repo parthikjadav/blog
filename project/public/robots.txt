@@ -6,4 +6,5 @@ Allow: /
 Disallow: /api/
 
 # Sitemap location
-Sitemap: https://yourdomain.com/sitemap.xml
+Sitemap: https://fast-tech-web.netlify.app/sitemap.xml
+

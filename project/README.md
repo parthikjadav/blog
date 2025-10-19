@@ -17,13 +17,15 @@ A high-performance, production-ready blog built with Next.js 15, Supabase, MDX, 
 ## 🛠️ Tech Stack
 
 - **Framework**: [Next.js 15](https://nextjs.org/)
-- **Database**: [Supabase](https://supabase.com/)
+- **Database**: [PostgreSQL](https://www.postgresql.org/) with [Prisma ORM](https://www.prisma.io/)
+- **Hosting**: [Neon](https://neon.tech/) (PostgreSQL Database)
 - **Styling**: [TailwindCSS](https://tailwindcss.com/)
 - **UI Components**: [shadcn/ui](https://ui.shadcn.com/)
 - **Content**: [MDX](https://mdxjs.com/)
 - **Icons**: [Lucide React](https://lucide.dev/)
 - **Theme**: [next-themes](https://github.com/pacocoursey/next-themes)
 - **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Testing**: [Vitest](https://vitest.dev/) + [React Testing Library](https://testing-library.com/)
 
 ## 📁 Project Structure
 
@@ -55,7 +57,9 @@ project/
 ### Prerequisites
 
 - Node.js 18+ and npm
-- Supabase account (for database features)
+- PostgreSQL database (local or cloud-hosted)
+  - **Recommended**: [Neon](https://neon.tech/) - Free serverless PostgreSQL
+  - **Alternatives**: Supabase, Railway, Vercel Postgres, or local PostgreSQL
 
 ### Installation
 
@@ -70,28 +74,72 @@ project/
    npm install
    ```
 
-3. **Set up environment variables**
+3. **Set up PostgreSQL Database**
    
-   Copy `env.example` to `.env.local`:
+   Choose one option:
+   
+   **Option A: Neon (Recommended - Free Tier)**
+   - Sign up at [neon.tech](https://neon.tech/)
+   - Create a new project
+   - Copy the connection string
+   
+   **Option B: Local PostgreSQL**
    ```bash
-   cp env.example .env.local
-   ```
-   
-   Update with your Supabase credentials:
-   ```env
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   NEXT_PUBLIC_SITE_URL=http://localhost:3000
+   # Install PostgreSQL (if not installed)
+   # Create database
+   createdb fast_tech_blog
    ```
 
-4. **Run the development server**
+4. **Set up environment variables**
+   
+   Create `.env` file (see `ENV-TEMPLATE.md` for examples):
+   ```bash
+   cp ENV-TEMPLATE.md .env
+   ```
+   
+   Update with your PostgreSQL connection string:
+   ```env
+   DATABASE_URL="postgresql://user:password@host:5432/database?schema=public"
+   ```
+
+5. **Set up database schema**
+   ```bash
+   # Push schema to database
+   npx prisma db push
+   
+   # Generate Prisma Client
+   npx prisma generate
+   ```
+
+6. **Migrate MDX content to database**
+   ```bash
+   npm run db:migrate
+   ```
+
+7. **Run the development server**
    ```bash
    npm run dev
    ```
 
-5. **Open your browser**
+8. **Open your browser**
    
    Navigate to [http://localhost:3000](http://localhost:3000)
+
+### Database Management
+
+```bash
+# Open Prisma Studio (Database GUI)
+npm run db:studio
+
+# Push schema changes
+npm run db:push
+
+# Generate Prisma Client
+npm run db:generate
+
+# Migrate MDX files to database
+npm run db:migrate
+```
 
 ## 📝 Creating Blog Posts
 

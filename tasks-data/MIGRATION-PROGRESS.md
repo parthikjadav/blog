@@ -2,18 +2,18 @@
 
 ## ✅ Completed Phases
 
-### Phase 1: Setup Prisma and SQLite ✅
+### Phase 1: Setup Prisma and PostgreSQL ✅
 - [x] Installed Prisma and @prisma/client
-- [x] Initialized Prisma with SQLite
+- [x] Initialized Prisma with PostgreSQL (Neon)
 - [x] Created database schema with Post scheduling support
-- [x] Ran initial migration
+- [x] Ran migrations
 - [x] Updated .gitignore
 
-**Database Schema:**
-- Post (with scheduledFor field for scheduling)
-- Category
-- Tag
-- PostTag (many-to-many relationship)
+**Database Schema (PostgreSQL):**
+- Post (with scheduledFor field for scheduling, UUID IDs)
+- Category (UUID IDs)
+- Tag (UUID IDs)
+- PostTag (many-to-many relationship, UUID IDs)
 
 ### Phase 2: Database Utilities ✅
 - [x] Created Prisma client singleton (`lib/prisma.ts`)
@@ -80,7 +80,7 @@
 
 **Overall Progress:** 100% ✅ (All phases complete!)
 
-**Time Spent:** ~2 hours
+**Time Spent:** ~3 hours total (2 hours SQLite + 1 hour PostgreSQL migration)
 **Migration Status:** ✅ **COMPLETE AND SUCCESSFUL**
 
 ---
@@ -88,20 +88,36 @@
 ## 🎯 Features Implemented
 
 ✅ **Post Scheduling** - Posts can be scheduled for future publication
-✅ **SQLite Database** - Simple, file-based database
+✅ **PostgreSQL Database** - Production-ready serverless database (Neon)
 ✅ **Category Management** - Automatic category creation
 ✅ **Tag Management** - Automatic tag creation  
 ✅ **Migration Script** - Easy MDX to database migration
+✅ **UUID IDs** - PostgreSQL-native UUID generation
+✅ **Full Test Coverage** - 157 tests passing
 
 ---
 
 ## 📝 Notes
 
 - All MDX content is preserved in database as strings
-- MDX rendering will continue to work with `next-mdx-remote`
+- MDX rendering continues to work with `next-mdx-remote`
 - Scheduled posts only appear when `scheduledFor` date has passed
-- Database file: `prisma/dev.db` (excluded from git)
+- Database: Neon PostgreSQL (serverless, production-ready)
+- Migration from SQLite to PostgreSQL completed successfully
+- All data integrity verified
+- Zero data loss during migration
 
 ---
 
-**Last Updated:** October 18, 2025
+## 🔄 Migration History
+
+1. **October 18, 2025** - Initial Prisma setup with SQLite
+2. **October 19, 2025** - Migrated from SQLite to PostgreSQL (Neon)
+   - Updated schema from `cuid()` to `uuid()`
+   - Changed provider from `sqlite` to `postgresql`
+   - All 157 tests passing
+   - Documentation updated
+
+---
+
+**Last Updated:** October 19, 2025, 12:11 PM IST

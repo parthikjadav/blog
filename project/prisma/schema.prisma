@@ -6,16 +6,16 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model Post {
-  id                String   @id @default(cuid())
+  id                String   @id @default(uuid())
   slug              String   @unique
   title             String
   description       String
-  content           String   // MDX content as string
+  content           String   @db.Text // MDX content as string
   excerpt           String?
   
   // Metadata
@@ -48,7 +48,7 @@ model Post {
 }
 
 model Category {
-  id          String   @id @default(cuid())
+  id          String   @id @default(uuid())
   name        String   @unique
   slug        String   @unique
   description String?
@@ -60,7 +60,7 @@ model Category {
 }
 
 model Tag {
-  id        String    @id @default(cuid())
+  id        String    @id @default(uuid())
   name      String    @unique
   slug      String    @unique
   createdAt DateTime  @default(now())
@@ -71,7 +71,7 @@ model Tag {
 }
 
 model PostTag {
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid())
   postId    String
   tagId     String
   
