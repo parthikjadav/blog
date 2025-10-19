@@ -3,10 +3,10 @@
 ## Tech Stack
 
 - **Framework**: Next.js 15 (App Router)
-- **Database**: Prisma + SQLite (migrated from Supabase)
+- **Database**: Prisma + PostgreSQL (Neon serverless)
 - **Styling**: TailwindCSS + shadcn/ui
 - **Content**: MDX (Markdown + JSX) stored in database
-- **Testing**: Vitest + React Testing Library
+- **Testing**: Vitest + React Testing Library (157 tests passing)
 - **Performance**: Static Site Generation (SSG)
 
 ## Core Features
@@ -53,8 +53,8 @@ blog/
 │       ├── footer.tsx
 │       └── theme-toggle.tsx
 ├── prisma/
-│   ├── schema.prisma        # Database schema
-│   └── dev.db               # SQLite database (gitignored)
+│   ├── schema.prisma        # Database schema (PostgreSQL)
+│   └── migrations/          # Database migrations
 ├── scripts/
 │   └── migrate-mdx-to-db.ts # Migration script
 ├── tests/
@@ -84,17 +84,17 @@ blog/
 └── vitest.config.ts         # Vitest configuration
 ```
 
-## Database Schema (Prisma + SQLite)
+## Database Schema (Prisma + PostgreSQL)
 
 ### Model: Post
 
 ```prisma
 model Post {
-  id                String   @id @default(cuid())
+  id                String   @id @default(uuid())
   slug              String   @unique
   title             String
   description       String
-  content           String   // MDX content
+  content           String   @db.Text // MDX content
   excerpt           String?
   
   // Metadata
@@ -125,7 +125,7 @@ model Post {
 
 ```prisma
 model Category {
-  id          String   @id @default(cuid())
+  id          String   @id @default(uuid())
   name        String
   slug        String   @unique
   description String?
@@ -139,7 +139,7 @@ model Category {
 
 ```prisma
 model Tag {
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid())
   name      String
   slug      String   @unique
   createdAt DateTime @default(now())
@@ -152,7 +152,7 @@ model Tag {
 
 ```prisma
 model PostTag {
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid())
   postId    String
   tagId     String
   
@@ -305,9 +305,9 @@ model PostTag {
 ## Deployment
 
 - **Platform**: Vercel (optimal for Next.js)
-- **Database**: Supabase (hosted)
+- **Database**: Neon PostgreSQL (serverless)
 - **CDN**: Automatic via Vercel
-- **Environment Variables**: Supabase URL & Anon Key
+- **Environment Variables**: DATABASE_URL (PostgreSQL connection)
 
 ## Future Enhancements (Optional)
 
