@@ -9,8 +9,8 @@ export const siteConfig = {
     twitter: "@fasttech",
   },
   links: {
-    twitter: "https://twitter.com/fasttech",
-    github: "https://github.com/fasttech",
+    // twitter: "https://twitter.com/fasttech",
+    github: "https://github.com/parthikjadav",
   },
   navigation: [
     { name: "Home", href: "/" },

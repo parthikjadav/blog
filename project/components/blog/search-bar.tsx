@@ -1,15 +1,14 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Search, X } from "lucide-react"
-import Link from "next/link"
+import { useState, useEffect } from "react";
+import { Search, X } from "lucide-react";
+import Link from "next/link";
 
-import { PostWithMetadata } from "@/types/blog"
-import { useDebounce } from "@/hooks/use-debounce"
-import { cn } from "@/lib/utils"
+import { BlogPost } from "@/types/blog";
+import { useDebounce } from "@/hooks/use-debounce";
 
 interface SearchBarProps {
-  posts: PostWithMetadata[]
+  posts: BlogPost[];
 }
 
 /**
@@ -17,39 +16,39 @@ interface SearchBarProps {
  * @param posts - Array of all posts to search through
  */
 export function SearchBar({ posts }: SearchBarProps) {
-  const [query, setQuery] = useState("")
-  const [results, setResults] = useState<PostWithMetadata[]>([])
-  const [isOpen, setIsOpen] = useState(false)
-  
-  const debouncedQuery = useDebounce(query, 300)
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<BlogPost[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const debouncedQuery = useDebounce(query, 300);
 
   useEffect(() => {
     if (debouncedQuery.trim() === "") {
-      setResults([])
-      setIsOpen(false)
-      return
+      setResults([]);
+      setIsOpen(false);
+      return;
     }
 
     // Search in title, description, and tags
     const searchResults = posts.filter((post) => {
-      const searchTerm = debouncedQuery.toLowerCase()
+      const searchTerm = debouncedQuery.toLowerCase();
       return (
-        post.metadata.title.toLowerCase().includes(searchTerm) ||
-        post.metadata.description.toLowerCase().includes(searchTerm) ||
-        post.metadata.tags.some((tag) => tag.toLowerCase().includes(searchTerm)) ||
-        post.metadata.category.toLowerCase().includes(searchTerm)
-      )
-    })
+        post.title.toLowerCase().includes(searchTerm) ||
+        post.description.toLowerCase().includes(searchTerm) ||
+        post.tags.some((tag) => tag.name.toLowerCase().includes(searchTerm)) ||
+        post.category.name.toLowerCase().includes(searchTerm)
+      );
+    });
 
-    setResults(searchResults)
-    setIsOpen(searchResults.length > 0)
-  }, [debouncedQuery, posts])
+    setResults(searchResults);
+    setIsOpen(searchResults.length > 0);
+  }, [debouncedQuery, posts]);
 
   const handleClear = () => {
-    setQuery("")
-    setResults([])
-    setIsOpen(false)
-  }
+    setQuery("");
+    setResults([]);
+    setIsOpen(false);
+  };
 
   return (
     <div className="relative w-full">
@@ -80,7 +79,8 @@ export function SearchBar({ posts }: SearchBarProps) {
         <div className="absolute z-50 w-full mt-2 bg-background border border-border rounded-md shadow-lg max-h-96 overflow-y-auto">
           <div className="p-2">
             <p className="text-sm text-muted-foreground px-2 py-1">
-              {results.length} {results.length === 1 ? "result" : "results"} found
+              {results.length} {results.length === 1 ? "result" : "results"}{" "}
+              found
             </p>
             <div className="space-y-1">
               {results.map((post) => (
@@ -91,18 +91,18 @@ export function SearchBar({ posts }: SearchBarProps) {
                   className="block p-2 rounded-md hover:bg-accent transition-colors"
                 >
                   <h3 className="font-medium text-sm line-clamp-1">
-                    {post.metadata.title}
+                    {post.title}
                   </h3>
                   <p className="text-xs text-muted-foreground line-clamp-1 mt-1">
-                    {post.metadata.description}
+                    {post.description}
                   </p>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-xs text-muted-foreground">
-                      {post.metadata.category}
+                      {post.category.name}
                     </span>
                     <span className="text-xs text-muted-foreground">•</span>
                     <span className="text-xs text-muted-foreground">
-                      {post.readingTime}
+                      {post.readingTime} min read
                     </span>
                   </div>
                 </Link>
@@ -112,5 +112,5 @@ export function SearchBar({ posts }: SearchBarProps) {
         </div>
       )}
     </div>
-  )
+  );
 }

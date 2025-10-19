@@ -1,9 +1,9 @@
-import { PostWithMetadata } from "@/types/blog";
+import { BlogPost } from "@/types/blog";
 import { PostCard } from "@/components/blog/post-card";
 import { UI_TEXT } from "@/data/constants";
 
 interface RelatedPostsProps {
-  posts: PostWithMetadata[];
+  posts: BlogPost[];
   type?: "tags" | "category" | "recent";
 }
 
@@ -24,7 +24,7 @@ export function RelatedPosts({ posts, type = "category" }: RelatedPostsProps) {
         </h2>
         <p className="text-sm text-muted-foreground mt-1">{sectionTitle}</p>
       </div>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2">
         {posts.map((post) => (
           <PostCard key={post.slug} post={post} />
         ))}

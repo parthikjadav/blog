@@ -20,16 +20,6 @@ export function Footer() {
               GitHub
             </a>
           )}
-          {siteConfig.links.twitter && (
-            <a
-              href={siteConfig.links.twitter}
-              target="_blank"
-              rel="noreferrer"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Twitter
-            </a>
-          )}
         </div>
       </div>
     </footer>

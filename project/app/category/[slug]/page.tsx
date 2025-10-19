@@ -1,14 +1,13 @@
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import Link from "next/link"
-import { ArrowRight, ArrowLeft } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 
-import { getPostsByCategory, getAllCategories } from "@/lib/mdx"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { getPostsByCategory, getAllCategories } from "@/lib/blog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { formatDate } from "@/lib/utils"
 import { UI_TEXT } from "@/data/constants"
+import { PostCard } from "@/components/blog/post-card"
 
 interface CategoryPageProps {
   params: Promise<{
@@ -17,15 +16,16 @@ interface CategoryPageProps {
 }
 
 export async function generateStaticParams() {
-  const categories = getAllCategories()
+  const categories = await getAllCategories()
   return categories.map((category) => ({
-    slug: category.toLowerCase(),
+    slug: category.slug,
   }))
 }
 
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params
-  const category = slug.charAt(0).toUpperCase() + slug.slice(1)
+  const posts = await getPostsByCategory(slug)
+  const category = posts.length > 0 ? posts[0].category.name : slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
   
   return {
     title: `${category} Posts`,
@@ -36,8 +36,8 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { slug } = await params
-  const posts = getPostsByCategory(slug)
-  const category = slug.charAt(0).toUpperCase() + slug.slice(1)
+  const posts = await getPostsByCategory(slug)
+  const category = posts.length > 0 ? posts[0].category.name : slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
 
   if (posts.length === 0) {
     notFound()
@@ -69,32 +69,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       {/* Posts Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {posts.map((post) => (
-          <Link key={post.slug} href={`/blog/${post.slug}`}>
-            <Card className="h-full transition-all hover:shadow-lg hover:scale-[1.02]">
-              <CardHeader>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-sm text-muted-foreground">
-                    {post.readingTime}
-                  </span>
-                </div>
-                <CardTitle className="line-clamp-2">
-                  {post.metadata.title}
-                </CardTitle>
-                <CardDescription className="line-clamp-2">
-                  {post.metadata.description}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between text-sm text-muted-foreground">
-                  <span>{formatDate(post.metadata.date)}</span>
-                  <span className="flex items-center gap-1">
-                    {UI_TEXT.READ_MORE}
-                    <ArrowRight className="h-3 w-3" />
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
+          <PostCard key={post.slug} post={post} />
         ))}
       </div>
     </div>

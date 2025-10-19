@@ -1,18 +1,16 @@
 import Link from "next/link";
-import { ArrowRight, Sparkles, BookOpen, Zap, Tag } from "lucide-react";
+import { ArrowRight, BookOpen } from "lucide-react";
 
-import { getAllPosts, getAllTags } from "@/lib/mdx";
+import { getAllPosts } from "@/lib/blog";
 import { PostCard } from "@/components/blog/post-card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { siteConfig } from "@/data/site-config";
 import { UI_TEXT } from "@/data/constants";
 import { Spotlight } from "@/components/ui/spotlight";
 import { cn } from "@/lib/utils";
 
-export default function Home() {
-  const posts = getAllPosts().slice(0, 6);
-  const tags = getAllTags();
+export default async function Home() {
+  const posts = (await getAllPosts()).slice(0, 6);
 
   return (
     <div>
@@ -74,26 +72,6 @@ export default function Home() {
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </Button>
-        </div>
-
-        {/* Popular Tags */}
-        <div className="mb-12 p-6 rounded-lg border bg-muted/30">
-          <div className="flex items-center gap-2 mb-4">
-            <Tag className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-semibold">Popular Tags</h3>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {tags.map((tag) => (
-              <Link key={tag.name} href={`/tag/${encodeURIComponent(tag.name)}`} className="inline-block">
-                <Badge 
-                  variant="secondary" 
-                  className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
-                >
-                  {tag.name} ({tag.count})
-                </Badge>
-              </Link>
-            ))}
-          </div>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

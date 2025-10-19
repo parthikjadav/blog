@@ -2,7 +2,7 @@ import { Metadata } from "next"
 import Link from "next/link"
 import { Tag } from "lucide-react"
 
-import { getTagStats } from "@/lib/mdx"
+import { getAllTags } from "@/lib/blog"
 import { Badge } from "@/components/ui/badge"
 
 export const metadata: Metadata = {
@@ -10,8 +10,8 @@ export const metadata: Metadata = {
   description: "Browse all blog post tags",
 }
 
-export default function TagsPage() {
-  const tagStats = getTagStats()
+export default async function TagsPage() {
+  const tagStats = await getAllTags()
 
   return (
     <div className="container py-12">
@@ -26,7 +26,7 @@ export default function TagsPage() {
       {/* Tags Cloud */}
       <div className="flex flex-wrap gap-3">
         {tagStats.map((tag) => (
-          <Link key={tag.name} href={`/tag/${tag.name.toLowerCase()}`}>
+          <Link key={tag.slug} href={`/tag/${tag.slug}`}>
             <Badge
               variant="outline"
               className="text-base px-4 py-2 cursor-pointer hover:bg-accent transition-all hover:scale-105"

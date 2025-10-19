@@ -3,10 +3,11 @@
 ## Tech Stack
 
 - **Framework**: Next.js 15 (App Router)
-- **Database**: Supabase (PostgreSQL)
+- **Database**: Prisma + SQLite (migrated from Supabase)
 - **Styling**: TailwindCSS + shadcn/ui
-- **Content**: MDX (Markdown + JSX)
-- **Performance**: Static Site Generation (SSG) + Incremental Static Regeneration (ISR)
+- **Content**: MDX (Markdown + JSX) stored in database
+- **Testing**: Vitest + React Testing Library
+- **Performance**: Static Site Generation (SSG)
 
 ## Core Features
 
@@ -29,66 +30,137 @@ blog/
 │   ├── category/
 │   │   └── [slug]/
 │   │       └── page.tsx     # Category page
-│   └── api/
-│       └── search/
-│           └── route.ts     # Search API
+│   ├── categories/
+│   │   └── page.tsx         # All categories
+│   ├── tag/
+│   │   └── [slug]/
+│   │       └── page.tsx     # Tag page
+│   ├── tags/
+│   │   └── page.tsx         # All tags
+│   └── sitemap.ts           # Dynamic sitemap
 ├── components/
 │   ├── ui/                  # shadcn components
 │   ├── blog/
 │   │   ├── post-card.tsx
 │   │   ├── post-header.tsx
+│   │   ├── related-posts.tsx
+│   │   ├── table-of-contents.tsx
 │   │   ├── mdx-components.tsx
 │   │   └── search-bar.tsx
-│   ├── layout/
-│   │   ├── header.tsx
-│   │   ├── footer.tsx
-│   │   └── theme-toggle.tsx
-│   └── shared/
-│       └── category-badge.tsx
-├── content/
-│   └── posts/               # MDX blog posts
-│       ├── post-title-1.mdx
-│       └── post-title-2.mdx
+│   └── layout/
+│       ├── header.tsx
+│       ├── header-search.tsx
+│       ├── footer.tsx
+│       └── theme-toggle.tsx
+├── prisma/
+│   ├── schema.prisma        # Database schema
+│   └── dev.db               # SQLite database (gitignored)
+├── scripts/
+│   └── migrate-mdx-to-db.ts # Migration script
+├── tests/
+│   ├── setup.ts             # Test configuration
+│   ├── tsconfig.json        # Test TypeScript config
+│   ├── unit/                # Unit tests
+│   ├── integration/         # Integration tests
+│   ├── components/          # Component tests
+│   ├── mocks/               # Mock data
+│   └── README.md            # Testing guide
 ├── data/
-│   ├── project-outline.md   # This file
-│   └── site-config.ts       # Site metadata
+│   ├── site-config.ts       # Site metadata
+│   └── constants.ts         # UI constants
 ├── lib/
-│   ├── supabase.ts          # Supabase client
-│   ├── mdx.ts               # MDX utilities
+│   ├── prisma.ts            # Prisma client singleton
+│   ├── db.ts                # Database helpers
+│   ├── blog.ts              # Blog data fetching
+│   ├── placeholder.ts       # Placeholder images
+│   ├── rehype-config.ts     # MDX rehype plugins
 │   └── utils.ts             # Helper functions
+├── hooks/
+│   └── use-debounce.ts      # Custom hooks
 ├── public/
 │   └── images/              # Blog images
-└── types/
-    └── index.ts              # TypeScript types
+├── types/
+│   └── blog.ts              # TypeScript types
+└── vitest.config.ts         # Vitest configuration
 ```
 
-## Database Schema (Supabase)
+## Database Schema (Prisma + SQLite)
 
-### Table: posts
+### Model: Post
 
-```sql
-- id: uuid (primary key)
-- slug: text (unique)
-- title: text
-- description: text
-- content: text (MDX content)
-- category: text
-- tags: text[]
-- published_at: timestamp
-- updated_at: timestamp
-- reading_time: integer (minutes)
-- featured_image: text (URL)
-- published: boolean
+```prisma
+model Post {
+  id                String   @id @default(cuid())
+  slug              String   @unique
+  title             String
+  description       String
+  content           String   // MDX content
+  excerpt           String?
+  
+  // Metadata
+  published         Boolean  @default(false)
+  featured          Boolean  @default(false)
+  scheduledFor      DateTime? // Post scheduling feature
+  publishedAt       DateTime?
+  updatedAt         DateTime @updatedAt
+  createdAt         DateTime @default(now())
+  
+  // SEO
+  keywords          String   // JSON array as string
+  featuredImage     String?
+  featuredImageAlt  String?
+  
+  // Content info
+  author            String
+  readingTime       Int      // in minutes
+  
+  // Relationships
+  categoryId        String
+  category          Category @relation(fields: [categoryId], references: [id])
+  tags              PostTag[]
+}
 ```
 
-### Table: categories
+### Model: Category
 
-```sql
-- id: uuid (primary key)
-- slug: text (unique)
-- name: text
-- description: text
-- post_count: integer
+```prisma
+model Category {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  
+  posts       Post[]
+}
+```
+
+### Model: Tag
+
+```prisma
+model Tag {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  
+  posts     PostTag[]
+}
+```
+
+### Model: PostTag (Junction Table)
+
+```prisma
+model PostTag {
+  id        String   @id @default(cuid())
+  postId    String
+  tagId     String
+  
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  
+  @@unique([postId, tagId])
+}
 ```
 
 ## Performance Optimizations

@@ -1,10 +1,11 @@
 import { Metadata } from "next"
 import Link from "next/link"
 
-import { getAllPosts, getAllCategories } from "@/lib/mdx"
+import { getAllPosts, getAllCategories } from "@/lib/blog"
 import { PostCard } from "@/components/blog/post-card"
 import { Badge } from "@/components/ui/badge"
 import { siteConfig } from "@/data/site-config"
+import { slugify } from "@/lib/utils"
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -12,9 +13,9 @@ export const metadata: Metadata = {
   keywords: ["blog", "articles", "tutorials", "technology", siteConfig.name],
 }
 
-export default function BlogPage() {
-  const posts = getAllPosts()
-  const categories = getAllCategories()
+export default async function BlogPage() {
+  const posts = await getAllPosts()
+  const categories = await getAllCategories()
 
   return (
     <div className="container py-12">
@@ -38,9 +39,9 @@ export default function BlogPage() {
             </Badge>
           </Link>
           {categories.map((category) => (
-            <Link key={category} href={`/category/${category.toLowerCase()}`}>
+            <Link key={category.slug} href={`/category/${category.slug}`}>
               <Badge variant="outline" className="cursor-pointer hover:bg-accent">
-                {category}
+                {category.name}
               </Badge>
             </Link>
           ))}

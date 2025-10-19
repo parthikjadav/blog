@@ -2,7 +2,7 @@ import { Metadata } from "next"
 import Link from "next/link"
 import { Folder, FileText } from "lucide-react"
 
-import { getAllPosts, getAllCategories } from "@/lib/mdx"
+import { getAllCategories } from "@/lib/blog"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
@@ -11,24 +11,18 @@ export const metadata: Metadata = {
   description: "Browse all blog post categories",
 }
 
-export default function CategoriesPage() {
-  const posts = getAllPosts()
-  const categories = getAllCategories()
+export default async function CategoriesPage() {
+  const categories = await getAllCategories()
 
-  // Count posts per category
-  const categoryStats = categories.map((category) => {
-    const categoryPosts = posts.filter(
-      (post) => post.metadata.category.toLowerCase() === category.toLowerCase()
-    )
-    return {
-      name: category,
-      slug: category.toLowerCase(),
-      count: categoryPosts.length,
-      description: `Explore ${categoryPosts.length} ${
-        categoryPosts.length === 1 ? "post" : "posts"
-      } about ${category}`,
-    }
-  })
+  // Map categories with post counts
+  const categoryStats = categories.map((category) => ({
+    name: category.name,
+    slug: category.slug,
+    count: category._count.posts,
+    description: `Explore ${category._count.posts} ${
+      category._count.posts === 1 ? "post" : "posts"
+    } about ${category.name}`,
+  }))
 
   return (
     <div className="container py-12">

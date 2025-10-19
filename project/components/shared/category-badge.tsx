@@ -1,7 +1,7 @@
 import Link from "next/link"
 
 import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
+import { cn, slugify } from "@/lib/utils"
 
 interface CategoryBadgeProps {
   category: string
@@ -36,7 +36,7 @@ export function CategoryBadge({
   )
 
   if (clickable) {
-    return <Link href={`/category/${category.toLowerCase()}`}>{badge}</Link>
+    return <Link href={`/category/${slugify(category)}`}>{badge}</Link>
   }
 
   return badge

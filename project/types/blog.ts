@@ -1,3 +1,31 @@
+// Database post type (from Prisma)
+export interface BlogPost {
+  id: string
+  slug: string
+  title: string
+  description: string
+  content: string
+  published: boolean
+  publishedAt: Date | null
+  scheduledFor: Date | null
+  readingTime: number
+  author: string
+  featuredImage: string | null
+  featuredImageAlt: string | null
+  keywords: string[]
+  category: {
+    id: string
+    name: string
+    slug: string
+  }
+  tags: {
+    id: string
+    name: string
+    slug: string
+  }[]
+}
+
+// Legacy types (kept for backward compatibility during migration)
 export interface Post {
   id: string
   slug: string

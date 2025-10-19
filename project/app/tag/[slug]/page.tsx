@@ -3,7 +3,7 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { ArrowRight, ArrowLeft, Tag } from "lucide-react"
 
-import { getPostsByTag, getAllTags } from "@/lib/mdx"
+import { getPostsByTag, getAllTags } from "@/lib/blog"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -17,9 +17,9 @@ interface TagPageProps {
 }
 
 export async function generateStaticParams() {
-  const tags = getAllTags()
+  const tags = await getAllTags()
   return tags.map((tag) => ({
-    slug: encodeURIComponent(tag.name),
+    slug: tag.slug,
   }))
 }
 
@@ -36,12 +36,13 @@ export async function generateMetadata({ params }: TagPageProps): Promise<Metada
 
 export default async function TagPage({ params }: TagPageProps) {
   const { slug } = await params
-  const tag = decodeURIComponent(slug)
-  const posts = getPostsByTag(tag)
+  const posts = await getPostsByTag(slug)
 
   if (posts.length === 0) {
     notFound()
   }
+  
+  const tagName = posts[0]?.tags.find(t => t.slug === slug)?.name || slug
 
   return (
     <div className="container py-12">
@@ -58,11 +59,11 @@ export default async function TagPage({ params }: TagPageProps) {
         <div className="flex items-center gap-2 mb-4">
           <Tag className="h-6 w-6 text-primary" />
           <Badge variant="outline" className="text-base px-4 py-1">
-            {tag}
+            {tagName}
           </Badge>
         </div>
         <h1 className="text-4xl font-bold tracking-tight mb-4">
-          Posts tagged "{tag}"
+          Posts tagged "{tagName}"
         </h1>
         <p className="text-xl text-muted-foreground">
           {posts.length} {posts.length === 1 ? "post" : "posts"} with this tag
@@ -76,21 +77,21 @@ export default async function TagPage({ params }: TagPageProps) {
             <Card className="h-full transition-all hover:shadow-lg hover:scale-[1.02]">
               <CardHeader>
                 <div className="flex items-center gap-2 mb-2">
-                  <Badge variant="secondary">{post.metadata.category}</Badge>
+                  <Badge variant="secondary">{post.category.name}</Badge>
                   <span className="text-sm text-muted-foreground">
-                    {post.readingTime}
+                    {post.readingTime} min read
                   </span>
                 </div>
                 <CardTitle className="line-clamp-2">
-                  {post.metadata.title}
+                  {post.title}
                 </CardTitle>
                 <CardDescription className="line-clamp-2">
-                  {post.metadata.description}
+                  {post.description}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
-                  <span>{formatDate(post.metadata.date)}</span>
+                  <span>{formatDate(post.publishedAt?.toISOString() || "")}</span>
                   <span className="flex items-center gap-1">
                     {UI_TEXT.READ_MORE}
                     <ArrowRight className="h-3 w-3" />

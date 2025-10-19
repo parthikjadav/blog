@@ -1,36 +1,36 @@
 import { MetadataRoute } from "next"
-import { getAllPosts, getAllCategories, getAllTags } from "@/lib/mdx"
+import { getAllPosts, getAllCategories, getAllTags } from "@/lib/blog"
 import { siteConfig } from "@/data/site-config"
 
 /**
  * Generates sitemap.xml for SEO
  * @returns Sitemap entries for all pages
  */
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = siteConfig.url
 
   // Get all posts
-  const posts = getAllPosts()
+  const posts = await getAllPosts()
   const postEntries: MetadataRoute.Sitemap = posts.map((post) => ({
     url: `${baseUrl}/blog/${post.slug}`,
-    lastModified: new Date(post.metadata.published_at || post.metadata.date || new Date().toISOString()),
+    lastModified: post.publishedAt || new Date(),
     changeFrequency: "monthly",
     priority: 0.8,
   }))
 
   // Get all categories
-  const categories = getAllCategories()
+  const categories = await getAllCategories()
   const categoryEntries: MetadataRoute.Sitemap = categories.map((category) => ({
-    url: `${baseUrl}/category/${category.toLowerCase()}`,
+    url: `${baseUrl}/category/${category.slug}`,
     lastModified: new Date(),
     changeFrequency: "weekly",
     priority: 0.6,
   }))
 
   // Get all tags
-  const tags = getAllTags()
+  const tags = await getAllTags()
   const tagEntries: MetadataRoute.Sitemap = tags.map((tag) => ({
-    url: `${baseUrl}/tag/${encodeURIComponent(tag.name)}`,
+    url: `${baseUrl}/tag/${tag.slug}`,
     lastModified: new Date(),
     changeFrequency: "weekly",
     priority: 0.5,
