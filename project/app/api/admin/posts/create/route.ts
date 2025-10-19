@@ -86,22 +86,40 @@ export async function POST(req: Request) {
           },
         });
 
-        // Ensure all tags exist (upsert)
+        // Ensure all tags exist - batch operation to avoid timeout
         const tagRows: Array<{ id: string; slug: string }> = [];
-        for (const tagSlug of p.tags) {
-          const tag = await tx.tag.upsert({
-            where: { slug: tagSlug },
-            update: {},
-            create: {
-              slug: tagSlug,
-              name: tagSlug
-                .split("-")
-                .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-                .join(" "),
-              createdAt: new Date(),
-            },
+        
+        if (p.tags.length > 0) {
+          // First, try to find existing tags
+          const existingTags = await tx.tag.findMany({
+            where: { slug: { in: p.tags } },
+            select: { id: true, slug: true }
           });
-          tagRows.push(tag);
+          
+          const existingTagSlugs = new Set(existingTags.map(t => t.slug));
+          const newTagSlugs = p.tags.filter(slug => !existingTagSlugs.has(slug));
+          
+          // Create new tags in batch if any
+          if (newTagSlugs.length > 0) {
+            await tx.tag.createMany({
+              data: newTagSlugs.map(slug => ({
+                slug,
+                name: slug.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" "),
+                createdAt: new Date(),
+              })),
+              skipDuplicates: true,
+            });
+            
+            // Fetch the newly created tags
+            const newTags = await tx.tag.findMany({
+              where: { slug: { in: newTagSlugs } },
+              select: { id: true, slug: true }
+            });
+            
+            tagRows.push(...existingTags, ...newTags);
+          } else {
+            tagRows.push(...existingTags);
+          }
         }
 
         // Compute publishedAt if published but not provided
@@ -142,12 +160,14 @@ export async function POST(req: Request) {
 
         // Sync tags: delete existing and create new ones
         await tx.postTag.deleteMany({ where: { postId: post.id } });
-        for (const tag of tagRows) {
-          await tx.postTag.create({
-            data: {
+        
+        // Use createMany for better performance and to avoid transaction timeout
+        if (tagRows.length > 0) {
+          await tx.postTag.createMany({
+            data: tagRows.map((tag) => ({
               postId: post.id,
               tagId: tag.id,
-            },
+            })),
           });
         }
 

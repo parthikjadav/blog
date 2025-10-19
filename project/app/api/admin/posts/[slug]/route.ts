@@ -1,23 +1,23 @@
-import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { PostInputZ } from '@/lib/validation/posts-upload'
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { PostInputZ } from "@/lib/validation/posts-upload";
 
 /**
  * Authenticate request with x-api-key header
  */
 function authenticate(req: Request): boolean {
-  const apiKey = req.headers.get('x-api-key')
-  return apiKey === process.env.POSTS_UPLOAD_API_KEY
+  const apiKey = req.headers.get("x-api-key");
+  return apiKey === process.env.POSTS_UPLOAD_API_KEY;
 }
 
 /**
  * GET /api/admin/posts/[slug]
- * 
+ *
  * Get a single post by slug
- * 
+ *
  * Headers:
  * - x-api-key: Required API key for authentication
- * 
+ *
  * Returns:
  * - 200: Post object with all fields
  * - 401: Unauthorized
@@ -30,9 +30,9 @@ export async function GET(
   // Authenticate
   if (!authenticate(req)) {
     return NextResponse.json(
-      { error: 'Unauthorized', message: 'Invalid or missing x-api-key header' },
+      { error: "Unauthorized", message: "Invalid or missing x-api-key header" },
       { status: 401 }
-    )
+    );
   }
 
   try {
@@ -42,17 +42,20 @@ export async function GET(
         category: true,
         tags: {
           include: {
-            tag: true
-          }
-        }
-      }
-    })
+            tag: true,
+          },
+        },
+      },
+    });
 
     if (!post) {
       return NextResponse.json(
-        { error: 'Not found', message: `Post with slug "${params.slug}" not found` },
+        {
+          error: "Not found",
+          message: `Post with slug "${params.slug}" not found`,
+        },
         { status: 404 }
-      )
+      );
     }
 
     // Transform response to match API format
@@ -74,39 +77,42 @@ export async function GET(
       category: {
         id: post.category.id,
         slug: post.category.slug,
-        name: post.category.name
+        name: post.category.name,
       },
-      tags: post.tags.map(pt => ({
+      tags: post.tags.map((pt) => ({
         id: pt.tag.id,
         slug: pt.tag.slug,
-        name: pt.tag.name
+        name: pt.tag.name,
       })),
       keywords: JSON.parse(post.keywords),
       featuredImage: post.featuredImage,
-      featuredImageAlt: post.featuredImageAlt
-    }
+      featuredImageAlt: post.featuredImageAlt,
+    };
 
-    return NextResponse.json(response)
+    return NextResponse.json(response);
   } catch (error: any) {
-    console.error('Error fetching post:', error)
+    console.error("Error fetching post:", error);
     return NextResponse.json(
-      { error: 'Internal server error', message: error?.message || 'Unknown error' },
+      {
+        error: "Internal server error",
+        message: error?.message || "Unknown error",
+      },
       { status: 500 }
-    )
+    );
   }
 }
 
 /**
  * PUT /api/admin/posts/[slug]
- * 
+ *
  * Update a post by slug
- * 
+ *
  * Headers:
  * - x-api-key: Required API key for authentication
  * - Content-Type: application/json
- * 
+ *
  * Body: PostInput object (without slug, as it's in the URL)
- * 
+ *
  * Returns:
  * - 200: Updated post
  * - 400: Validation error
@@ -120,52 +126,57 @@ export async function PUT(
   // Authenticate
   if (!authenticate(req)) {
     return NextResponse.json(
-      { error: 'Unauthorized', message: 'Invalid or missing x-api-key header' },
+      { error: "Unauthorized", message: "Invalid or missing x-api-key header" },
       { status: 401 }
-    )
+    );
   }
 
   // Parse JSON body
-  let json: unknown
+  let json: unknown;
   try {
-    json = await req.json()
+    json = await req.json();
   } catch (error) {
     return NextResponse.json(
-      { error: 'Invalid JSON', message: 'Request body must be valid JSON' },
+      { error: "Invalid JSON", message: "Request body must be valid JSON" },
       { status: 400 }
-    )
+    );
   }
 
   // Add slug from URL to the data for validation
-  const dataWithSlug = { ...json as any, slug: params.slug }
+  const dataWithSlug = { ...(json as any), slug: params.slug };
 
   // Validate with Zod
-  const parsed = PostInputZ.safeParse(dataWithSlug)
+  const parsed = PostInputZ.safeParse(dataWithSlug);
   if (!parsed.success) {
     return NextResponse.json(
-      { 
-        error: 'Validation failed',
-        issues: parsed.error.issues.map(issue => ({
-          path: issue.path.join('.'),
+      {
+        error: "Validation failed",
+        issues: parsed.error.issues.map((issue) => ({
+          path: issue.path.join("."),
           message: issue.message,
-          code: issue.code
-        }))
+          code: issue.code,
+        })),
       },
       { status: 400 }
-    )
+    );
   }
 
-  const p = parsed.data
+  const p = parsed.data;
 
   try {
     // Check if post exists
-    const existing = await prisma.post.findUnique({ where: { slug: params.slug } })
-    
+    const existing = await prisma.post.findUnique({
+      where: { slug: params.slug },
+    });
+
     if (!existing) {
       return NextResponse.json(
-        { error: 'Not found', message: `Post with slug "${params.slug}" not found` },
+        {
+          error: "Not found",
+          message: `Post with slug "${params.slug}" not found`,
+        },
         { status: 404 }
-      )
+      );
     }
 
     // Update post in transaction
@@ -174,32 +185,58 @@ export async function PUT(
       const category = await tx.category.upsert({
         where: { slug: p.categorySlug },
         update: {},
-        create: { 
-          slug: p.categorySlug, 
-          name: p.categorySlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-          createdAt: new Date() 
+        create: {
+          slug: p.categorySlug,
+          name: p.categorySlug
+            .split("-")
+            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+            .join(" "),
+          createdAt: new Date(),
         },
-      })
+      });
 
-      // Ensure all tags exist
-      const tagRows: Array<{ id: string; slug: string }> = []
-      for (const tagSlug of p.tags) {
-        const tag = await tx.tag.upsert({ 
-          where: { slug: tagSlug }, 
-          update: {}, 
-          create: { 
-            slug: tagSlug, 
-            name: tagSlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-            createdAt: new Date() 
-          } 
-        })
-        tagRows.push(tag)
+      // Ensure all tags exist - batch operation to avoid timeout
+      const tagRows: Array<{ id: string; slug: string }> = [];
+      
+      if (p.tags.length > 0) {
+        // First, try to find existing tags
+        const existingTags = await tx.tag.findMany({
+          where: { slug: { in: p.tags } },
+          select: { id: true, slug: true }
+        });
+        
+        const existingTagSlugs = new Set(existingTags.map(t => t.slug));
+        const newTagSlugs = p.tags.filter(slug => !existingTagSlugs.has(slug));
+        
+        // Create new tags in batch if any
+        if (newTagSlugs.length > 0) {
+          await tx.tag.createMany({
+            data: newTagSlugs.map(slug => ({
+              slug,
+              name: slug.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" "),
+              createdAt: new Date(),
+            })),
+            skipDuplicates: true,
+          });
+          
+          // Fetch the newly created tags
+          const newTags = await tx.tag.findMany({
+            where: { slug: { in: newTagSlugs } },
+            select: { id: true, slug: true }
+          });
+          
+          tagRows.push(...existingTags, ...newTags);
+        } else {
+          tagRows.push(...existingTags);
+        }
       }
 
       // Compute publishedAt
-      const publishedAt = p.published 
-        ? (p.publishedAt ? new Date(p.publishedAt) : new Date())
-        : null
+      const publishedAt = p.published
+        ? p.publishedAt
+          ? new Date(p.publishedAt)
+          : new Date()
+        : null;
 
       // Update post
       const post = await tx.post.update({
@@ -219,50 +256,53 @@ export async function PUT(
           featuredImage: p.featuredImage ?? null,
           featuredImageAlt: p.featuredImageAlt ?? null,
           categoryId: category.id,
-          updatedAt: new Date()
-        }
-      })
+          updatedAt: new Date(),
+        },
+      });
 
       // Sync tags
-      await tx.postTag.deleteMany({ where: { postId: post.id } })
+      await tx.postTag.deleteMany({ where: { postId: post.id } });
       for (const tag of tagRows) {
-        await tx.postTag.create({ 
-          data: { 
-            postId: post.id, 
-            tagId: tag.id 
-          } 
-        })
+        await tx.postTag.create({
+          data: {
+            postId: post.id,
+            tagId: tag.id,
+          },
+        });
       }
 
-      return post
-    })
+      return post;
+    });
 
     return NextResponse.json({
       success: true,
-      message: 'Post updated successfully',
+      message: "Post updated successfully",
       post: {
         id: updatedPost.id,
         slug: updatedPost.slug,
-        title: updatedPost.title
-      }
-    })
+        title: updatedPost.title,
+      },
+    });
   } catch (error: any) {
-    console.error('Error updating post:', error)
+    console.error("Error updating post:", error);
     return NextResponse.json(
-      { error: 'Internal server error', message: error?.message || 'Unknown error' },
+      {
+        error: "Internal server error",
+        message: error?.message || "Unknown error",
+      },
       { status: 500 }
-    )
+    );
   }
 }
 
 /**
  * DELETE /api/admin/posts/[slug]
- * 
+ *
  * Delete a post by slug
- * 
+ *
  * Headers:
  * - x-api-key: Required API key for authentication
- * 
+ *
  * Returns:
  * - 200: Success message
  * - 401: Unauthorized
@@ -270,8 +310,9 @@ export async function PUT(
  */
 export async function DELETE(
   req: Request,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
+  const { slug } = await params;
   // Authenticate
   if (!authenticate(req)) {
     return NextResponse.json(
@@ -282,34 +323,40 @@ export async function DELETE(
 
   try {
     // Check if post exists
-    const existing = await prisma.post.findUnique({ where: { slug: params.slug } })
-    
+    const existing = await prisma.post.findUnique({ where: { slug } });
+
     if (!existing) {
       return NextResponse.json(
-        { error: 'Not found', message: `Post with slug "${params.slug}" not found` },
+        {
+          error: "Not found",
+          message: `Post with slug "${slug}" not found`,
+        },
         { status: 404 }
-      )
+      );
     }
 
     // Delete post (cascade will delete PostTag relations)
     await prisma.post.delete({
-      where: { id: existing.id }
-    })
+      where: { id: existing.id },
+    });
 
     return NextResponse.json({
       success: true,
-      message: `Post "${params.slug}" deleted successfully`,
+      message: `Post "${slug}" deleted successfully`,
       deletedPost: {
         id: existing.id,
         slug: existing.slug,
-        title: existing.title
-      }
-    })
+        title: existing.title,
+      },
+    });
   } catch (error: any) {
-    console.error('Error deleting post:', error)
+    console.error("Error deleting post:", error);
     return NextResponse.json(
-      { error: 'Internal server error', message: error?.message || 'Unknown error' },
+      {
+        error: "Internal server error",
+        message: error?.message || "Unknown error",
+      },
       { status: 500 }
-    )
+    );
   }
 }
