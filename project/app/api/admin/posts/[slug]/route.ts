@@ -25,8 +25,10 @@ function authenticate(req: Request): boolean {
  */
 export async function GET(
   req: Request,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
+  const { slug } = await params;
+  
   // Authenticate
   if (!authenticate(req)) {
     return NextResponse.json(
@@ -37,7 +39,7 @@ export async function GET(
 
   try {
     const post = await prisma.post.findUnique({
-      where: { slug: params.slug },
+      where: { slug },
       include: {
         category: true,
         tags: {
@@ -52,7 +54,7 @@ export async function GET(
       return NextResponse.json(
         {
           error: "Not found",
-          message: `Post with slug "${params.slug}" not found`,
+          message: `Post with slug "${slug}" not found`,
         },
         { status: 404 }
       );
@@ -121,8 +123,10 @@ export async function GET(
  */
 export async function PUT(
   req: Request,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
+  const { slug } = await params;
+  
   // Authenticate
   if (!authenticate(req)) {
     return NextResponse.json(
@@ -143,7 +147,7 @@ export async function PUT(
   }
 
   // Add slug from URL to the data for validation
-  const dataWithSlug = { ...(json as any), slug: params.slug };
+  const dataWithSlug = { ...(json as any), slug };
 
   // Validate with Zod
   const parsed = PostInputZ.safeParse(dataWithSlug);
@@ -166,14 +170,14 @@ export async function PUT(
   try {
     // Check if post exists
     const existing = await prisma.post.findUnique({
-      where: { slug: params.slug },
+      where: { slug },
     });
 
     if (!existing) {
       return NextResponse.json(
         {
           error: "Not found",
-          message: `Post with slug "${params.slug}" not found`,
+          message: `Post with slug "${slug}" not found`,
         },
         { status: 404 }
       );
