@@ -63,7 +63,7 @@ export default async function TagPage({ params }: TagPageProps) {
           </Badge>
         </div>
         <h1 className="text-4xl font-bold tracking-tight mb-4">
-          Posts tagged "{tagName}"
+          Posts tagged &ldquo;{tagName}&rdquo;
         </h1>
         <p className="text-xl text-muted-foreground">
           {posts.length} {posts.length === 1 ? "post" : "posts"} with this tag

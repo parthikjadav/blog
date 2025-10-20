@@ -5,7 +5,6 @@ import { getAllPosts, getAllCategories } from "@/lib/blog"
 import { PostCard } from "@/components/blog/post-card"
 import { Badge } from "@/components/ui/badge"
 import { siteConfig } from "@/data/site-config"
-import { slugify } from "@/lib/utils"
 
 export const metadata: Metadata = {
   title: "Blog",

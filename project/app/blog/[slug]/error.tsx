@@ -23,7 +23,7 @@ export default function Error({
         <FileQuestion className="mx-auto h-12 w-12 text-muted-foreground mb-6" />
         <h2 className="text-2xl font-bold mb-4">Failed to load post</h2>
         <p className="text-muted-foreground mb-6">
-          We couldn't load this blog post. It may have been moved or deleted.
+          We couldn&apos;t load this post. Please try again later. It may have been moved or deleted.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button onClick={reset}>

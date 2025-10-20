@@ -80,7 +80,12 @@ export const getAllPosts = cache(async () => {
     }
   })
 
-  return posts.map(transformPost)
+  return posts.map((post) => ({
+    ...post,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    keywords: JSON.parse(post.keywords) as any,
+    tags: post.tags.map((pt) => pt.tag),
+  }))
 })
 
 export const getPostBySlug = cache(async (slug: string) => {

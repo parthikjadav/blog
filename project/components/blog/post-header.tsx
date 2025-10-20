@@ -1,4 +1,3 @@
-import Link from "next/link"
 import { Calendar, Clock } from "lucide-react"
 
 import { BlogPost } from "@/types/blog"

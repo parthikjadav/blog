@@ -22,9 +22,9 @@ export default function Error({
     <div className="container flex min-h-[600px] flex-col items-center justify-center py-12">
       <div className="mx-auto max-w-md text-center">
         <AlertCircle className="mx-auto h-12 w-12 text-destructive mb-6" />
-        <h2 className="text-2xl font-bold mb-4">Something went wrong!</h2>
+        <h2 className="text-2xl font-bold mb-4">Something went wrong. We&apos;re working on fixing the problem.</h2>
         <p className="text-muted-foreground mb-6">
-          We encountered an unexpected error. This has been logged and we'll look into it.
+          We encountered an unexpected error. This has been logged and we&apos;ll look into it.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button onClick={reset}>

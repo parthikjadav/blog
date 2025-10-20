@@ -16,7 +16,6 @@ import { Button } from "@/components/ui/button";
 import { UI_TEXT } from "@/data/constants";
 import { siteConfig } from "@/data/site-config";
 import { RelatedPosts } from "@/components/blog/related-posts";
-import { slugify } from "@/lib/utils";
 
 interface PostPageProps {
   params: Promise<{
@@ -74,9 +73,7 @@ export async function generateMetadata({
 
 export default async function PostPage({ params }: PostPageProps) {
   const { slug } = await params;
-  let post;
-
-  post = await getPostBySlug(slug);
+  const post = await getPostBySlug(slug);
   
   if (!post) {
     notFound();
@@ -125,6 +122,7 @@ export default async function PostPage({ params }: PostPageProps) {
               components={mdxComponents}
               options={{
                 mdxOptions: {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   rehypePlugins: rehypePlugins as any,
                 },
               }}

@@ -82,3 +82,68 @@ model PostTag {
   @@index([postId])
   @@index([tagId])
 }
+
+model Topic {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  title       String
+  description String?
+  icon        String?  // Icon name for sidebar
+  order       Int      // Display order
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  sections    Section[]
+  lessons     Lesson[]
+  
+  @@index([slug])
+  @@index([published])
+  @@index([order])
+}
+
+model Section {
+  id          String   @id @default(uuid())
+  slug        String
+  title       String
+  description String?
+  icon        String?  // Optional icon for section
+  order       Int      // Order within topic
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  topicId     String
+  topic       Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  lessons     Lesson[]
+  
+  @@unique([topicId, slug])
+  @@index([topicId, order])
+  @@index([slug])
+  @@index([published])
+}
+
+model Lesson {
+  id          String   @id @default(uuid())
+  slug        String
+  title       String
+  description String?
+  content     String   @db.Text  // MDX content
+  order       Int      // Order within topic or section
+  published   Boolean  @default(false)
+  duration    Int?     // Estimated reading time in minutes
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  topicId     String
+  topic       Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  
+  sectionId   String?
+  section     Section? @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  
+  @@unique([topicId, slug])
+  @@index([slug])
+  @@index([published])
+  @@index([topicId, order])
+  @@index([sectionId, order])
+}

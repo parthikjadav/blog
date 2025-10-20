@@ -8,6 +8,7 @@
 - **Content**: MDX (Markdown + JSX) stored in database
 - **Testing**: Vitest + React Testing Library (157 tests passing)
 - **Performance**: Static Site Generation (SSG)
+- **Learning Platform**: Interactive tutorials with MDX lessons ✅
 
 ## Core Features
 
@@ -16,6 +17,7 @@
 3. **Search** - Fast client-side search
 4. **SEO Optimized** - Meta tags, Open Graph, sitemap
 5. **Dark Mode** - Theme toggle
+6. **Learning Platform** - Interactive tutorials with lessons ✅
 
 ## Project Structure
 
@@ -37,6 +39,16 @@ blog/
 │   │       └── page.tsx     # Tag page
 │   ├── tags/
 │   │   └── page.tsx         # All tags
+│   ├── learn/               # Learning platform (Phase 8) 🆕
+│   │   ├── page.tsx         # Topics listing
+│   │   ├── [topic]/
+│   │   │   ├── page.tsx     # Redirect to first lesson
+│   │   │   └── [lesson]/
+│   │   │       └── page.tsx # Lesson page with sidebar
+│   ├── api/
+│   │   └── admin/
+│   │       ├── topics/      # Topic management API 🆕
+│   │       └── lessons/     # Lesson management API 🆕
 │   └── sitemap.ts           # Dynamic sitemap
 ├── components/
 │   ├── ui/                  # shadcn components
@@ -47,11 +59,16 @@ blog/
 │   │   ├── table-of-contents.tsx
 │   │   ├── mdx-components.tsx
 │   │   └── search-bar.tsx
-│   └── layout/
-│       ├── header.tsx
-│       ├── header-search.tsx
-│       ├── footer.tsx
-│       └── theme-toggle.tsx
+│   ├── layout/
+│   │   ├── header.tsx
+│   │   ├── header-search.tsx
+│   │   ├── footer.tsx
+│   │   └── theme-toggle.tsx
+│   └── learn/               # Learning platform components 🆕
+│       ├── learning-sidebar.tsx
+│       ├── lesson-content.tsx
+│       ├── lesson-navigation.tsx
+│       └── topic-card.tsx
 ├── prisma/
 │   ├── schema.prisma        # Database schema (PostgreSQL)
 │   └── migrations/          # Database migrations
@@ -72,6 +89,7 @@ blog/
 │   ├── prisma.ts            # Prisma client singleton
 │   ├── db.ts                # Database helpers
 │   ├── blog.ts              # Blog data fetching
+│   ├── learn.ts             # Learning platform data fetching 🆕
 │   ├── placeholder.ts       # Placeholder images
 │   ├── rehype-config.ts     # MDX rehype plugins
 │   └── utils.ts             # Helper functions
@@ -160,6 +178,46 @@ model PostTag {
   tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
   
   @@unique([postId, tagId])
+}
+```
+
+### Model: Topic (Phase 8 - Learning Platform) 🆕
+
+```prisma
+model Topic {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  title       String
+  description String?
+  icon        String?
+  order       Int
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  lessons     Lesson[]
+}
+```
+
+### Model: Lesson (Phase 8 - Learning Platform) 🆕
+
+```prisma
+model Lesson {
+  id          String   @id @default(uuid())
+  slug        String
+  title       String
+  description String?
+  content     String   @db.Text  // MDX content
+  order       Int
+  published   Boolean  @default(false)
+  duration    Int?     // Reading time in minutes
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  topicId     String
+  topic       Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  
+  @@unique([topicId, slug])
 }
 ```
 
@@ -252,6 +310,45 @@ model PostTag {
 4. Loading states
 5. Accessibility (a11y)
 
+### Phase 5: Production Ready
+
+1. Code quality and TypeScript strict mode
+2. Documentation
+3. Testing infrastructure (Vitest)
+4. PostgreSQL migration
+5. Deployment
+
+### Phase 6: Prisma Migration
+
+1. Setup Prisma with SQLite
+2. Create database schema
+3. Migrate MDX posts to database
+4. Update data fetching layer
+
+### Phase 7: PostgreSQL Migration
+
+1. Migrate from SQLite to Neon PostgreSQL
+2. Update schema for PostgreSQL
+3. Data migration and verification
+4. Testing and validation
+
+### Phase 8: Learning Platform ✅ COMPLETED
+
+1. ✅ Database schema (Topic, Lesson models)
+2. ✅ Library functions (`lib/learn.ts`)
+3. ✅ Route structure (`/learn/[topic]/[lesson]`)
+4. ✅ Sidebar navigation component
+5. ✅ Lesson content rendering with MDX
+6. ✅ Navigation components (prev/next)
+7. ✅ Seed data script (3 topics, 6 lessons)
+8. ✅ MDX content styling
+9. ✅ Mobile responsive design
+10. ✅ Header navigation updated
+
+**Status**: Complete - Learning platform live at `/learn`  
+**Content**: 3 topics (HTML, CSS, JavaScript) with 6 lessons  
+**Features**: Sidebar navigation, MDX rendering, prev/next navigation
+
 ## Key Dependencies
 
 ```json
@@ -311,11 +408,20 @@ model PostTag {
 
 ## Future Enhancements (Optional)
 
+### Blog Features
 - Comments system (giscus/utterances)
 - Newsletter subscription
-- Related posts
 - View counter
 - Social share buttons
-- Table of contents navigation
-- Reading progress bar
 - Bookmark/save for later
+
+### Learning Platform Features (Phase 8+)
+- User progress tracking
+- Lesson completion certificates
+- Interactive code editor (CodeSandbox integration)
+- Exercise validation
+- Search across lessons
+- Comments/discussion per lesson
+- Bookmarks for favorite lessons
+- Quizzes and assessments
+- Community Q&A section
