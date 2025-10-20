@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import "./nprogress.css";
 
 import { ThemeProvider } from "@/components/theme-provider";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
+import { TopLoadingBar } from "@/components/layout/top-loading-bar";
 import { siteConfig } from "@/data/site-config";
 import { Toaster } from "sonner";
 
@@ -96,6 +98,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <TopLoadingBar />
           <div className="relative flex min-h-screen flex-col">
             <Header />
             <main id="main-content" className="flex-1">

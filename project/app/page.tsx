@@ -12,8 +12,21 @@ import { Spotlight } from "@/components/ui/spotlight";
 import { cn } from "@/lib/utils";
 
 export default async function Home() {
-  const posts = (await getAllPosts()).slice(0, 6);
-  const topics = await getAllTopics();
+  // Fetch posts with error handling
+  let posts: Awaited<ReturnType<typeof getAllPosts>> = [];
+  try {
+    posts = (await getAllPosts()).slice(0, 6);
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+  }
+
+  // Fetch topics with error handling
+  let topics: Awaited<ReturnType<typeof getAllTopics>> = [];
+  try {
+    topics = await getAllTopics();
+  } catch (error) {
+    console.error("Error fetching learning topics:", error);
+  }
 
   return (
     <div>
@@ -33,10 +46,10 @@ export default async function Home() {
           <Spotlight className="-top-40 left-0 md:-top-20 md:left-60" />
           <div className="relative z-10 mx-auto w-full max-w-7xl p-4 pt-20 md:pt-0">
             <h1 className="bg-opacity-50 bg-gradient-to-b from-black to-neutral-600 dark:from-neutral-50 dark:to-neutral-400 bg-clip-text text-center text-4xl font-bold text-transparent md:text-7xl">
-              {siteConfig.name} <br /> is the new trend.
+              {siteConfig.name} <br /> {UI_TEXT.HERO_TAGLINE}
             </h1>
             <p className="mx-auto mt-4 max-w-lg text-center text-base font-normal text-neutral-700 dark:text-neutral-300">
-              {siteConfig.description}. Discover high-quality articles, tutorials, and insights on modern web development.
+              {siteConfig.description}. {UI_TEXT.HERO_DESCRIPTION}
             </p>
             
             {/* CTA Buttons */}
@@ -44,13 +57,13 @@ export default async function Home() {
               <Button asChild size="lg" className="bg-black dark:bg-white text-white dark:text-black hover:bg-black/90 dark:hover:bg-white/90 group">
                 <Link href="/blog">
                   <BookOpen className="mr-2 h-5 w-5" />
-                  Explore Articles
+                  {UI_TEXT.EXPLORE_ARTICLES}
                   <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="border-black/20 dark:border-white/20 text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/10">
                 <Link href="/categories">
-                  Browse Categories
+                  {UI_TEXT.BROWSE_CATEGORIES}
                 </Link>
               </Button>
             </div>
@@ -64,15 +77,15 @@ export default async function Home() {
           <div>
             <h2 className="text-3xl font-bold tracking-tight mb-2 flex items-center gap-2">
               <GraduationCap className="h-8 w-8" />
-              Start Learning
+              {UI_TEXT.START_LEARNING}
             </h2>
             <p className="text-muted-foreground">
-              Master web development with our structured learning paths
+              {UI_TEXT.LEARNING_DESCRIPTION}
             </p>
           </div>
           <Button asChild variant="ghost" className="group">
             <Link href="/learn">
-              View All Topics
+              {UI_TEXT.VIEW_ALL_TOPICS}
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </Button>
@@ -87,7 +100,7 @@ export default async function Home() {
         {topics.length === 0 && (
           <div className="text-center py-12">
             <p className="text-muted-foreground">
-              No learning topics available yet. Check back soon!
+              {UI_TEXT.NO_TOPICS_AVAILABLE}
             </p>
           </div>
         )}
@@ -98,10 +111,10 @@ export default async function Home() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h2 className="text-3xl font-bold tracking-tight mb-2">
-              Latest Articles
+              {UI_TEXT.LATEST_ARTICLES}
             </h2>
             <p className="text-muted-foreground">
-              Discover our most recent posts
+              {UI_TEXT.DISCOVER_POSTS}
             </p>
           </div>
           <Button asChild variant="ghost" className="group">
@@ -121,7 +134,7 @@ export default async function Home() {
         {posts.length === 0 && (
           <div className="text-center py-12">
             <p className="text-muted-foreground">
-              No posts yet. Check back soon!
+              {UI_TEXT.NO_POSTS_YET}
             </p>
           </div>
         )}

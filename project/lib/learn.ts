@@ -57,7 +57,12 @@ export interface TopicWithLessons {
 }
 
 /**
- * Get all published topics with lesson count
+ * Fetches all published learning topics with lesson counts
+ * @returns Promise resolving to array of topics sorted by order, including lesson count
+ * @throws {Error} When database query fails
+ * @example
+ * const topics = await getAllTopics()
+ * console.log(topics[0]._count.lessons) // Number of lessons
  */
 export async function getAllTopics() {
   return await prisma.topic.findMany({
@@ -72,7 +77,16 @@ export async function getAllTopics() {
 }
 
 /**
- * Get a single topic with all its published lessons and sections
+ * Fetches a single topic with all its published lessons and sections
+ * @param topicSlug - The URL-friendly slug of the topic (e.g., 'html', 'css')
+ * @returns Promise resolving to topic with lessons and sections, or null if not found
+ * @throws {Error} When database query fails
+ * @example
+ * const topic = await getTopicWithLessons('html')
+ * if (topic) {
+ *   console.log(topic.lessons.length) // Standalone lessons
+ *   console.log(topic.sections.length) // Sections with nested lessons
+ * }
  */
 export async function getTopicWithLessons(topicSlug: string): Promise<TopicWithLessons | null> {
   return await prisma.topic.findUnique({
@@ -116,7 +130,18 @@ export async function getTopicWithLessons(topicSlug: string): Promise<TopicWithL
 }
 
 /**
- * Get a single lesson with navigation (prev/next)
+ * Fetches a single lesson with compiled MDX content and navigation links
+ * @param topicSlug - The URL-friendly slug of the parent topic
+ * @param lessonSlug - The URL-friendly slug of the lesson
+ * @returns Promise resolving to lesson with prev/next navigation, or null if not found
+ * @throws {Error} When database query or MDX compilation fails
+ * @example
+ * const lesson = await getLesson('html', 'introduction')
+ * if (lesson) {
+ *   console.log(lesson.content) // Compiled MDX
+ *   console.log(lesson.prev?.title) // Previous lesson title
+ *   console.log(lesson.next?.title) // Next lesson title
+ * }
  */
 export async function getLesson(
   topicSlug: string,
@@ -175,7 +200,14 @@ export async function getLesson(
 }
 
 /**
- * Get topic progress (for future use with user tracking)
+ * Calculates learning progress for a topic based on completed lessons
+ * @param topicSlug - The URL-friendly slug of the topic
+ * @param completedLessonIds - Array of lesson IDs that have been completed (default: [])
+ * @returns Promise resolving to progress object with total, completed count, and percentage
+ * @throws {Error} When database query fails
+ * @example
+ * const progress = await getTopicProgress('html', ['lesson-id-1', 'lesson-id-2'])
+ * console.log(`${progress.percentage}% complete`) // e.g., "50% complete"
  */
 export async function getTopicProgress(topicSlug: string, completedLessonIds: string[] = []) {
   const topic = await getTopicWithLessons(topicSlug)

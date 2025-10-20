@@ -10,7 +10,7 @@ async function main() {
   await prisma.section.deleteMany()
   await prisma.topic.deleteMany()
 
-  // Create HTML Topic with Sections (Nested Structure)
+  // Phase 1: Create HTML Topic with standalone lessons only
   const htmlTopic = await prisma.topic.create({
     data: {
       slug: 'html',
@@ -19,7 +19,6 @@ async function main() {
       icon: 'Code',
       order: 1,
       published: true,
-      // Standalone lessons (shown before sections)
       lessons: {
         create: [
           {
@@ -53,78 +52,85 @@ HTML is the standard markup language for Web pages.
             published: true
           }
         ]
-      },
-      // Sections with nested lessons
-      sections: {
+      }
+    }
+  })
+
+  // Phase 2: Create sections with lessons for HTML topic
+  await prisma.section.create({
+    data: {
+      slug: 'basics',
+      title: 'HTML Basics',
+      description: 'Core HTML concepts',
+      order: 1,
+      published: true,
+      topicId: htmlTopic.id,
+      lessons: {
         create: [
           {
-            slug: 'basics',
-            title: 'HTML Basics',
-            description: 'Core HTML concepts',
-            order: 1,
-            published: true,
-            lessons: {
-              create: [
-                {
-                  slug: 'elements',
-                  title: 'HTML Elements',
-                  description: 'Understanding HTML elements and tags',
-                  content: `# HTML Elements
+            slug: 'elements',
+            title: 'HTML Elements',
+            description: 'Understanding HTML elements and tags',
+            content: `# HTML Elements
 
 An HTML element is defined by a start tag, some content, and an end tag.
 
 \`\`\`html
 <tagname>Content goes here...</tagname>
 \`\`\``,
-                  order: 1,
-                  duration: 8,
-                  published: true,
-                  topic: { connect: { slug: 'html' } }
-                },
-                {
-                  slug: 'attributes',
-                  title: 'HTML Attributes',
-                  description: 'Learn about HTML attributes',
-                  content: `# HTML Attributes
+            order: 1,
+            duration: 8,
+            published: true,
+            topicId: htmlTopic.id
+          },
+          {
+            slug: 'attributes',
+            title: 'HTML Attributes',
+            description: 'Learn about HTML attributes',
+            content: `# HTML Attributes
 
 HTML attributes provide additional information about HTML elements.
 
 \`\`\`html
 <a href="https://www.example.com">Visit Example</a>
 \`\`\``,
-                  order: 2,
-                  duration: 10,
-                  published: true,
-                  topic: { connect: { slug: 'html' } }
-                }
-              ]
-            }
-          },
-          {
-            slug: 'colors',
-            title: 'HTML Colors',
-            description: 'Working with colors in HTML',
             order: 2,
+            duration: 10,
             published: true,
-            lessons: {
-              create: [
-                {
-                  slug: 'colors-intro',
-                  title: 'Colors',
-                  description: 'Introduction to HTML colors',
-                  content: `# HTML Colors
+            topicId: htmlTopic.id
+          }
+        ]
+      }
+    }
+  })
+
+  await prisma.section.create({
+    data: {
+      slug: 'colors',
+      title: 'HTML Colors',
+      description: 'Working with colors in HTML',
+      order: 2,
+      published: true,
+      topicId: htmlTopic.id,
+      lessons: {
+        create: [
+          {
+            slug: 'colors-intro',
+            title: 'Colors',
+            description: 'Introduction to HTML colors',
+            content: `# HTML Colors
 
 HTML colors are specified with predefined color names, or with RGB, HEX, HSL, RGBA, or HSLA values.`,
-                  order: 1,
-                  duration: 6,
-                  published: true,
-                  topic: { connect: { slug: 'html' } }
-                },
-                {
-                  slug: 'rgb',
-                  title: 'RGB',
-                  description: 'RGB color values',
-                  content: `# RGB Colors
+            order: 1,
+            duration: 6,
+            published: true,
+            topicId: htmlTopic.id
+          },
+          {
+            slug: 'rgb',
+            title: 'RGB',
+            description: 'RGB color values',
+            content: `# RGB Colors
 
 An RGB color value represents RED, GREEN, and BLUE light sources.
 
@@ -133,16 +139,16 @@ rgb(255, 0, 0)   /* red */
 rgb(0, 255, 0)   /* green */
 rgb(0, 0, 255)   /* blue */
 \`\`\``,
-                  order: 2,
-                  duration: 7,
-                  published: true,
-                  topic: { connect: { slug: 'html' } }
-                },
-                {
-                  slug: 'hex',
-                  title: 'HEX',
-                  description: 'HEX color values',
-                  content: `# HEX Colors
+            order: 2,
+            duration: 7,
+            published: true,
+            topicId: htmlTopic.id
+          },
+          {
+            slug: 'hex',
+            title: 'HEX',
+            description: 'HEX color values',
+            content: `# HEX Colors
 
 A hexadecimal color is specified with: #RRGGBB.
 
@@ -151,16 +157,16 @@ A hexadecimal color is specified with: #RRGGBB.
 #00ff00  /* green */
 #0000ff  /* blue */
 \`\`\``,
-                  order: 3,
-                  duration: 7,
-                  published: true,
-                  topic: { connect: { slug: 'html' } }
-                },
-                {
-                  slug: 'hsl',
-                  title: 'HSL',
-                  description: 'HSL color values',
-                  content: `# HSL Colors
+            order: 3,
+            duration: 7,
+            published: true,
+            topicId: htmlTopic.id
+          },
+          {
+            slug: 'hsl',
+            title: 'HSL',
+            description: 'HSL color values',
+            content: `# HSL Colors
 
 HSL stands for Hue, Saturation, and Lightness.
 
@@ -169,27 +175,31 @@ hsl(0, 100%, 50%)    /* red */
 hsl(120, 100%, 50%)  /* green */
 hsl(240, 100%, 50%)  /* blue */
 \`\`\``,
-                  order: 4,
-                  duration: 7,
-                  published: true,
-                  topic: { connect: { slug: 'html' } }
-                }
-              ]
-            }
-          },
-          {
-            slug: 'forms',
-            title: 'HTML Forms',
-            description: 'Creating forms in HTML',
-            order: 3,
+            order: 4,
+            duration: 7,
             published: true,
-            lessons: {
-              create: [
-                {
-                  slug: 'forms-intro',
-                  title: 'Forms',
-                  description: 'Introduction to HTML forms',
-                  content: `# HTML Forms
+            topicId: htmlTopic.id
+          }
+        ]
+      }
+    }
+  })
+
+  await prisma.section.create({
+    data: {
+      slug: 'forms',
+      title: 'HTML Forms',
+      description: 'Creating forms in HTML',
+      order: 3,
+      published: true,
+      topicId: htmlTopic.id,
+      lessons: {
+        create: [
+          {
+            slug: 'forms-intro',
+            title: 'Forms',
+            description: 'Introduction to HTML forms',
+            content: `# HTML Forms
 
 Forms are used to collect user input.
 
@@ -199,16 +209,16 @@ Forms are used to collect user input.
   <input type="submit" value="Submit">
 </form>
 \`\`\``,
-                  order: 1,
-                  duration: 12,
-                  published: true,
-                  topic: { connect: { slug: 'html' } }
-                },
-                {
-                  slug: 'input-types',
-                  title: 'Input Types',
-                  description: 'Different input types',
-                  content: `# HTML Input Types
+            order: 1,
+            duration: 12,
+            published: true,
+            topicId: htmlTopic.id
+          },
+          {
+            slug: 'input-types',
+            title: 'Input Types',
+            description: 'Different input types',
+            content: `# HTML Input Types
 
 HTML has many input types.
 
@@ -218,17 +228,19 @@ HTML has many input types.
 <input type="email">
 <input type="number">
 \`\`\``,
-                  order: 2,
-                  duration: 10,
-                  published: true,
-                  topic: { connect: { slug: 'html' } }
-                }
-              ]
-            }
+            order: 2,
+            duration: 10,
+            published: true,
+            topicId: htmlTopic.id
           }
         ]
       }
-    },
+    }
+  })
+
+  // Fetch HTML topic with all relations for reporting
+  const htmlTopicWithRelations = await prisma.topic.findUnique({
+    where: { id: htmlTopic.id },
     include: {
       sections: {
         include: {
@@ -341,9 +353,9 @@ console.log("Hello, World!");
 
   console.log('✅ Seeded topics:')
   console.log(`   - ${htmlTopic.title}:`)
-  console.log(`     • ${htmlTopic.lessons.length} standalone lessons`)
-  console.log(`     • ${htmlTopic.sections.length} sections`)
-  const htmlTotalLessons = htmlTopic.lessons.length + htmlTopic.sections.reduce((sum, s) => sum + s.lessons.length, 0)
+  console.log(`     • ${htmlTopicWithRelations!.lessons.length} standalone lessons`)
+  console.log(`     • ${htmlTopicWithRelations!.sections.length} sections`)
+  const htmlTotalLessons = htmlTopicWithRelations!.lessons.length + htmlTopicWithRelations!.sections.reduce((sum: number, s) => sum + s.lessons.length, 0)
   console.log(`     • ${htmlTotalLessons} total lessons`)
   
   console.log(`   - ${cssTopic.title}:`)
@@ -352,7 +364,7 @@ console.log("Hello, World!");
   console.log(`   - ${jsTopic.title}:`)
   console.log(`     • ${jsTopic.lessons.length} lessons (simple structure)`)
   
-  console.log(`\n📊 Total: 3 topics, ${htmlTopic.sections.length} sections`)
+  console.log(`\n📊 Total: 3 topics, ${htmlTopicWithRelations!.sections.length} sections`)
 }
 
 main()
