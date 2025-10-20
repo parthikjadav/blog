@@ -79,9 +79,7 @@ An HTML element is defined by a start tag, some content, and an end tag.
                   order: 1,
                   duration: 8,
                   published: true,
-                  topic: {
-                    connect: { slug: 'html' }
-                  }
+                  topic: { connect: { slug: 'html' } }
                 },
                 {
                   slug: 'attributes',
@@ -96,7 +94,8 @@ HTML attributes provide additional information about HTML elements.
 \`\`\``,
                   order: 2,
                   duration: 10,
-                  published: true
+                  published: true,
+                  topic: { connect: { slug: 'html' } }
                 }
               ]
             }
@@ -119,6 +118,7 @@ HTML colors are specified with predefined color names, or with RGB, HEX, HSL, RG
                   order: 1,
                   duration: 6,
                   published: true,
+                  topic: { connect: { slug: 'html' } }
                 },
                 {
                   slug: 'rgb',
@@ -136,6 +136,7 @@ rgb(0, 0, 255)   /* blue */
                   order: 2,
                   duration: 7,
                   published: true,
+                  topic: { connect: { slug: 'html' } }
                 },
                 {
                   slug: 'hex',
@@ -153,6 +154,7 @@ A hexadecimal color is specified with: #RRGGBB.
                   order: 3,
                   duration: 7,
                   published: true,
+                  topic: { connect: { slug: 'html' } }
                 },
                 {
                   slug: 'hsl',
@@ -170,6 +172,7 @@ hsl(240, 100%, 50%)  /* blue */
                   order: 4,
                   duration: 7,
                   published: true,
+                  topic: { connect: { slug: 'html' } }
                 }
               ]
             }
@@ -199,6 +202,7 @@ Forms are used to collect user input.
                   order: 1,
                   duration: 12,
                   published: true,
+                  topic: { connect: { slug: 'html' } }
                 },
                 {
                   slug: 'input-types',
@@ -217,6 +221,7 @@ HTML has many input types.
                   order: 2,
                   duration: 10,
                   published: true,
+                  topic: { connect: { slug: 'html' } }
                 }
               ]
             }
