@@ -1,8 +1,10 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen } from "lucide-react";
+import { ArrowRight, BookOpen, GraduationCap } from "lucide-react";
 
 import { getAllPosts } from "@/lib/blog";
+import { getAllTopics } from "@/lib/learn";
 import { PostCard } from "@/components/blog/post-card";
+import TopicCard from "@/components/learn/TopicCard";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/data/site-config";
 import { UI_TEXT } from "@/data/constants";
@@ -11,6 +13,7 @@ import { cn } from "@/lib/utils";
 
 export default async function Home() {
   const posts = (await getAllPosts()).slice(0, 6);
+  const topics = await getAllTopics();
 
   return (
     <div>
@@ -53,6 +56,41 @@ export default async function Home() {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* Learning Section */}
+      <section className="container py-16 border-b">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight mb-2 flex items-center gap-2">
+              <GraduationCap className="h-8 w-8" />
+              Start Learning
+            </h2>
+            <p className="text-muted-foreground">
+              Master web development with our structured learning paths
+            </p>
+          </div>
+          <Button asChild variant="ghost" className="group">
+            <Link href="/learn">
+              View All Topics
+              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </Button>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {topics.map((topic) => (
+            <TopicCard key={topic.slug} topic={topic} />
+          ))}
+        </div>
+
+        {topics.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">
+              No learning topics available yet. Check back soon!
+            </p>
+          </div>
+        )}
       </section>
 
       {/* Recent Posts */}

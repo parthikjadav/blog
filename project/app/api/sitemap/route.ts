@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { getAllPosts, getAllCategories, getAllTags } from "@/lib/blog"
+import { getAllTopics, getTopicWithLessons } from "@/lib/learn"
 import { siteConfig } from "@/data/site-config"
 
 /**
@@ -37,6 +38,50 @@ export async function GET() {
       priority: "0.5",
     }))
 
+    // Get all learning topics and lessons
+    const topics = await getAllTopics()
+    const topicUrls = topics.map((topic) => ({
+      loc: `${baseUrl}/learn/${topic.slug}`,
+      lastmod: new Date().toISOString(),
+      changefreq: "weekly",
+      priority: "0.7",
+    }))
+
+    // Get all lessons from all topics
+    const lessonUrls: Array<{
+      loc: string
+      lastmod: string
+      changefreq: string
+      priority: string
+    }> = []
+
+    for (const topic of topics) {
+      const topicWithLessons = await getTopicWithLessons(topic.slug)
+      if (topicWithLessons) {
+        // Add standalone lessons
+        topicWithLessons.lessons.forEach((lesson) => {
+          lessonUrls.push({
+            loc: `${baseUrl}/learn/${topic.slug}/${lesson.slug}`,
+            lastmod: new Date().toISOString(),
+            changefreq: "monthly",
+            priority: "0.6",
+          })
+        })
+
+        // Add lessons from sections
+        topicWithLessons.sections.forEach((section) => {
+          section.lessons.forEach((lesson) => {
+            lessonUrls.push({
+              loc: `${baseUrl}/learn/${topic.slug}/${lesson.slug}`,
+              lastmod: new Date().toISOString(),
+              changefreq: "monthly",
+              priority: "0.6",
+            })
+          })
+        })
+      }
+    }
+
     // Static pages
     const staticUrls = [
       {
@@ -49,6 +94,12 @@ export async function GET() {
         loc: `${baseUrl}/blog`,
         lastmod: new Date().toISOString(),
         changefreq: "daily",
+        priority: "0.9",
+      },
+      {
+        loc: `${baseUrl}/learn`,
+        lastmod: new Date().toISOString(),
+        changefreq: "weekly",
         priority: "0.9",
       },
       {
@@ -66,7 +117,14 @@ export async function GET() {
     ]
 
     // Combine all URLs
-    const allUrls = [...staticUrls, ...postUrls, ...categoryUrls, ...tagUrls]
+    const allUrls = [
+      ...staticUrls,
+      ...postUrls,
+      ...categoryUrls,
+      ...tagUrls,
+      ...topicUrls,
+      ...lessonUrls,
+    ]
 
     // Generate XML sitemap
     const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
