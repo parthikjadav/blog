@@ -2,14 +2,18 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { siteConfig } from "@/data/site-config";
-import { HeaderSearch } from "@/components/layout/header-search";
+// import { HeaderSearch } from "@/components/layout/header-search";
 import { HeaderNav } from "@/components/layout/header-nav";
+import { MobileSidebarToggle } from "@/components/layout/mobile-sidebar-toggle";
 
 export function Header() {
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center gap-4">
+          {/* Mobile Sidebar Toggle - Only on /learn pages */}
+          <MobileSidebarToggle />
+
           {/* Logo */}
           <Link
             href="/"
@@ -38,20 +42,20 @@ export function Header() {
           </Link>
 
           {/* Search Bar - Hidden on mobile */}
-          <div className="hidden md:block flex-1 max-w-md">
+          {/* <div className="hidden md:block flex-1 max-w-md">
             <HeaderSearch />
-          </div>
+          </div> */}
 
           {/* Navigation - Client Component */}
           <HeaderNav />
         </div>
 
         {/* Mobile Search - Full width below header */}
-        <div className="md:hidden border-t">
+        {/* <div className="md:hidden border-t">
           <div className="container py-2">
             <HeaderSearch />
           </div>
-        </div>
+        </div> */}
       </header>
     </>
   );
