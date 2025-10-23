@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, Suspense } from "react"
 import { usePathname, useSearchParams } from "next/navigation"
 import NProgress from "nprogress"
 
@@ -13,7 +13,7 @@ NProgress.configure({
   speed: 400
 })
 
-export function TopLoadingBar() {
+function TopLoadingBarContent() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
@@ -55,6 +55,14 @@ export function TopLoadingBar() {
       window.removeEventListener('popstate', handlePopState)
     }
   }, [pathname])
-
+  
   return null
+}
+
+export function TopLoadingBar() {
+  return (
+    <Suspense fallback={null}>
+      <TopLoadingBarContent />
+    </Suspense>
+  )
 }
